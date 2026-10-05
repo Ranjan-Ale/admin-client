@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import type { CategoryForm } from "../../types/app.types";
+import { saveCategory } from "../../services/category.services";
 
 const AddCategory = () => {
 	const [formData, setFormData] = useState<CategoryForm>({
@@ -7,11 +8,23 @@ const AddCategory = () => {
 		slug: "",
 		description: ""
 	});
+
 	const { title, slug, description } = formData;
 
-	const onFormSubmit = (e: SubmitEvent) => {
+	const onFormSubmit = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		console.log("Form Submit", formData);
+		saveCategory(formData)
+			.then(({message}) => {
+				console.log(message);
+				setFormData({
+					title: "",
+					slug: "",
+					description: ""
+				})
+			})
+			.catch((err) => {
+				console.log(err);
+			})
 	}
 
 
@@ -61,6 +74,7 @@ const AddCategory = () => {
 									 id="cat-title"
 									  className="form-control"
 									   placeholder="Title"
+									   value={title}
 									   onChange={(e) => {
 										onInputChange("title", e.target.value)
 									   }}
@@ -72,6 +86,7 @@ const AddCategory = () => {
 									 id="cat-slug"
 									  className="form-control"
 									   placeholder="Slug"
+									   value={slug}
 									   onChange={(e) => {
 										onInputChange("slug", e.target.value)
 									   }}
@@ -80,6 +95,7 @@ const AddCategory = () => {
 								<div className="mt-3">
 									<label htmlFor="cat-desciption">Description</label>
 									<textarea id="cat-description" className="form-control" placeholder="Description..."
+									value={description}
 									onChange={(e) => {
 										onInputChange("description", e.target.value)
 									   }}

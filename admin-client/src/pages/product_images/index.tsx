@@ -132,7 +132,11 @@ function ListProductImages() {
 
                                                 <td>
                                                     <img
-                                                        src={`http://localhost:3000${image.upload_path}`}
+                                                         src={`http://localhost:3000/${
+                                                            image.upload_path.startsWith("/")
+                                                                ? image.upload_path.slice(1)
+                                                                : image.upload_path
+                                                        }`}
                                                         alt={image.filename}
                                                         style={{
                                                             width: "80px",
@@ -140,6 +144,7 @@ function ListProductImages() {
                                                             objectFit: "cover"
                                                         }}
                                                     />
+        
                                                 </td>
 
                                                 <td>
