@@ -29,6 +29,30 @@ function ListOrders() {
 			});
 	}, []);
 
+	const handleDelete = async (id: number) => {
+		const confirmDelete = window.confirm(
+			"Are you sure you want to delete this order?"
+		);
+
+		if (!confirmDelete) {
+			return;
+		}
+
+		try {
+			await axios.delete(`http://localhost:3000/orders/${id}`);
+
+			// Remove deleted order from the table
+			setOrders((currentOrders) =>
+				currentOrders.filter((order) => order.id !== id)
+			);
+
+			alert("Order deleted successfully");
+		} catch (error) {
+			console.error("Error deleting order:", error);
+			alert("Failed to delete order");
+		}
+	};
+
 	return (
 		<>
 			<div className="app-content-header">
@@ -44,9 +68,11 @@ function ListOrders() {
 									<li className="breadcrumb-item">
 										<a href="#">Home</a>
 									</li>
+
 									<li className="breadcrumb-item">
 										<a href="#">Orders</a>
 									</li>
+
 									<li
 										className="breadcrumb-item active"
 										aria-current="page"
@@ -217,6 +243,9 @@ function ListOrders() {
 																<button
 																	className="dropdown-item"
 																	type="button"
+																	onClick={() =>
+																		handleDelete(order.id)
+																	}
 																>
 																	Delete
 																</button>
@@ -265,3 +294,4 @@ function ListOrders() {
 }
 
 export default ListOrders;
+

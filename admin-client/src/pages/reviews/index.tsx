@@ -1,30 +1,38 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-
-interface Review {
-	id: number;
-	user_id: number;
-	product_id: number;
-	variant_id: number | null;
-	title: string;
-	description: string;
-	created_at: string;
-	updated_at: string;
-}
+import type { ProductReview } from "../../types/app.types";
+import {
+	getReviews,
+	deleteReview
+} from "../../services/review.services";
 
 function ListReviews() {
-	const [reviews, setReviews] = useState<Review[]>([]);
+	const [reviews, setReviews] = useState<ProductReview[]>([]);
+
+	const loadReviews = () => {
+		getReviews()
+			.then((_reviews: ProductReview[]) => {
+				setReviews(_reviews);
+			})
+			.catch((err) => {
+				console.log("Get reviews failed.", err);
+			});
+	};
+
+	const onClickDelete = (id: number, idx: number) => {
+		deleteReview(id)
+			.then(() => {
+				setReviews([
+					...reviews.slice(0, idx),
+					...reviews.slice(idx + 1)
+				]);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+	};
 
 	useEffect(() => {
-		axios
-			.get("http://localhost:3000/product-reviews")
-			.then((response) => {
-				console.log(response.data);
-				setReviews(response.data);
-			})
-			.catch((error) => {
-				console.error("error fetching reviews:", error);
-			});
+		loadReviews();
 	}, []);
 
 	return (
@@ -62,10 +70,13 @@ function ListReviews() {
 
 			<div className="app-content">
 				<div className="container-fluid">
+
 					<div className="card">
 
 						<div className="card-header">
-							<h3 className="card-title">Reviews</h3>
+							<h3 className="card-title">
+								Product Reviews
+							</h3>
 
 							<div className="card-tools">
 								<div
@@ -95,7 +106,6 @@ function ListReviews() {
 							<div className="d-flex gap-2 mb-3">
 
 								<button
-									id="export-csv"
 									type="button"
 									className="btn btn-sm btn-outline-secondary"
 								>
@@ -107,7 +117,6 @@ function ListReviews() {
 								</button>
 
 								<button
-									id="export-json"
 									type="button"
 									className="btn btn-sm btn-outline-secondary"
 								>
@@ -119,7 +128,6 @@ function ListReviews() {
 								</button>
 
 								<button
-									id="print-table"
 									type="button"
 									className="btn btn-sm btn-outline-secondary"
 								>
@@ -137,102 +145,135 @@ function ListReviews() {
 								tabIndex={0}
 								style={{ height: "490px" }}
 							>
+
 								<table className="table table-striped table-hover">
 
 									<thead>
 										<tr>
 											<th>ID</th>
-											<th>User</th>
-											<th>Product</th>
-											<th>Variant</th>
-											<th>Title</th>
+											<th>User ID</th>
+											<th>Product ID</th>
+											<th>Variant ID</th>
+											<th>Review Title</th>
 											<th>Description</th>
-											<th>CreatedAt</th>
-											<th>UpdatedAt</th>
+											<th>Created At</th>
+											<th>Updated At</th>
 											<th>Action</th>
 										</tr>
 									</thead>
 
 									<tbody>
 
-										{reviews.map((review) => (
-											<tr key={review.id}>
+										{reviews.length > 0 ? (
+											reviews.map(
+												(
+													review: ProductReview,
+													idx: number
+												) => (
+													<tr key={review.id}>
 
-												<td>{review.id}</td>
+														<td>
+															{review.id}
+														</td>
 
-												<td>{review.user_id}</td>
+														<td>
+															{review.user_id}
+														</td>
 
-												<td>{review.product_id}</td>
+														<td>
+															{review.product_id}
+														</td>
 
-												<td>
-													{review.variant_id ?? "-"}
-												</td>
+														<td>
+															{review.product_variant_id ??
+																"No variant"}
+														</td>
 
-												<td>{review.title}</td>
+														<td>
+															{review.review_title}
+														</td>
 
-												<td>{review.description}</td>
+														<td>
+															{review.description ?? ""}
+														</td>
 
-												<td>{review.created_at}</td>
+														<td>
+															{review.created_at ?? ""}
+														</td>
 
-												<td>{review.updated_at}</td>
+														<td>
+															{review.updated_at ?? ""}
+														</td>
 
-												<td>
-													<div className="dropdown">
+														<td>
+															<div className="dropdown">
 
-														<button
-															className="btn btn-primary btn-sm"
-															data-bs-toggle="dropdown"
-														>
-															Action
-														</button>
-
-														<ul className="dropdown-menu">
-
-															<li>
-																<a
-																	className="dropdown-item"
-																	href={`/reviews/edit/${review.id}`}
-																>
-																	Edit
-																</a>
-															</li>
-
-															<li>
 																<button
-																	className="dropdown-item"
-																	type="button"
+																	className="btn btn-primary btn-sm"
+																	data-bs-toggle="dropdown"
 																>
-																	Delete
+																	Action
 																</button>
-															</li>
 
-														</ul>
+																<ul className="dropdown-menu">
 
-													</div>
+																	<li className="dropdown-item">
+																		<a href="#">
+																			Edit
+																		</a>
+																	</li>
+
+																	<li className="dropdown-item">
+
+																		<a
+																			href="#"
+																			onClick={(e) => {
+																				e.preventDefault();
+
+																				onClickDelete(
+																					review.id,
+																					idx
+																				);
+																			}}
+																		>
+																			Delete
+																		</a>
+
+																	</li>
+
+																</ul>
+
+															</div>
+														</td>
+
+													</tr>
+												)
+											)
+										) : (
+											<tr>
+												<td
+													colSpan={9}
+													className="text-center"
+												>
+													No reviews found
 												</td>
-
 											</tr>
-										))}
+										)}
 
 									</tbody>
 
 								</table>
+
 							</div>
 						</div>
 
 						<div className="card-footer text-secondary small">
-							Powered by{" "}
-							<a
-								href="https://tabulator.info/"
-								target="_blank"
-								rel="noopener"
-							>
-								Tabulator
-							</a>
-							&mdash; vanilla JS, no jQuery required.
+							Showing {reviews.length} review
+							{reviews.length !== 1 ? "s" : ""}
 						</div>
 
 					</div>
+
 				</div>
 			</div>
 		</>
@@ -240,4 +281,3 @@ function ListReviews() {
 }
 
 export default ListReviews;
-

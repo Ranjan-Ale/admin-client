@@ -1,80 +1,80 @@
+
 import { useState, type FormEvent } from "react";
+import axios from "axios";
 
-interface UserOption {
-	id: string;
-	label: string;
-}
-
-// Replace with users/carts fetched from your API
-const users: UserOption[] = [
-	{ id: "1", label: "john_doe" },
-	{ id: "2", label: "jane_smith" },
-	{ id: "3", label: "alex_lee" },
-];
-
-const ORDER_STATUSES = ["pending", "processing", "completed", "cancelled"] as const;
-type OrderStatus = (typeof ORDER_STATUSES)[number];
-
-interface OrderFormState {
+interface OrderForm {
 	user_id: string;
 	cart_id: string;
 	amount: string;
-	order_status: OrderStatus;
+	order_status: string;
 	remarks: string;
 	cancel_reason: string;
 }
 
-function AddOrder() {
-	const [form, setForm] = useState<OrderFormState>({
-		user_id: users[0]?.id ?? "",
+const AddOrder = () => {
+	const [formData, setFormData] = useState<OrderForm>({
+		user_id: "",
 		cart_id: "",
 		amount: "",
 		order_status: "pending",
 		remarks: "",
 		cancel_reason: "",
 	});
-	const [submitting, setSubmitting] = useState(false);
-	const [error, setError] = useState<string | null>(null);
 
-	async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+	const [message, setMessage] = useState("");
+	const [error, setError] = useState("");
+
+	const handleChange = (
+		e: React.ChangeEvent<
+			HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+		>
+	) => {
+		const { name, value } = e.target;
+
+		setFormData({
+			...formData,
+			[name]: value,
+		});
+	};
+
+	const onFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		setError(null);
 
-		if (!form.user_id || !form.cart_id.trim() || !form.amount.trim()) {
-			setError("User, cart, and amount are required.");
-			return;
-		}
-		if (form.order_status === "cancelled" && !form.cancel_reason.trim()) {
-			setError("Cancel reason is required when status is cancelled.");
-			return;
-		}
+		setMessage("");
+		setError("");
 
-		setSubmitting(true);
 		try {
-			const payload = {
-				user_id: form.user_id,
-				cart_id: form.cart_id,
-				amount: Number(form.amount),
-				order_status: form.order_status,
-				remarks: form.remarks || null,
-				cancel_reason: form.order_status === "cancelled" ? form.cancel_reason : null,
-			};
+			const response = await axios.post(
+				"http://localhost:3000/orders",
+				{
+					user_id: Number(formData.user_id),
+					cart_id: Number(formData.cart_id),
+					amount: formData.amount,
+					order_status: formData.order_status,
+					remarks: formData.remarks || null,
+					cancel_reason: formData.cancel_reason || null,
+				}
+			);
 
-			// Wire this up to your real endpoint:
-			// const res = await fetch("/api/orders", {
-			//   method: "POST",
-			//   headers: { "Content-Type": "application/json" },
-			//   body: JSON.stringify(payload),
-			// });
-			// if (!res.ok) throw new Error("Failed to create order");
+			console.log("Order created:", response.data);
 
-			console.log("Submitting order:", payload);
-		} catch (err) {
-			setError(err instanceof Error ? err.message : "Something went wrong.");
-		} finally {
-			setSubmitting(false);
+			setMessage("Order added successfully!");
+
+			// Clear form after successful save
+			setFormData({
+				user_id: "",
+				cart_id: "",
+				amount: "",
+				order_status: "pending",
+				remarks: "",
+				cancel_reason: "",
+			});
+		} catch (error) {
+			console.error("Error creating order:", error);
+
+			setError("Failed to add order. Please try again.");
 		}
-	}
+	};
 
 	return (
 		<>
@@ -84,137 +84,203 @@ function AddOrder() {
 						<div className="col-sm-6">
 							<h1 className="mb-0 fs-3">Add Order</h1>
 						</div>
-						<div className="col-sm-6">
-							<nav aria-label="breadcrumb">
-								<ol className="breadcrumb float-sm-end">
-									<li className="breadcrumb-item"><a href="#">Home</a></li>
-									<li className="breadcrumb-item"><a href="/orders/list">Orders</a></li>
-									<li className="breadcrumb-item active" aria-current="page">Add</li>
-								</ol>
-							</nav>
-						</div>
 					</div>
 				</div>
 			</div>
+
 			<div className="app-content">
 				<div className="container-fluid">
-					<div className="card">
-						<div className="card-header">
-							<h3 className="card-title">New Order</h3>
-						</div>
-						<form onSubmit={handleSubmit}>
-							<div className="card-body">
-								{error && (
-									<div className="alert alert-danger py-2" role="alert">
-										{error}
-									</div>
-								)}
+					<div className="row">
+						<div className="col-md-12">
 
-								<div className="row">
-									<div className="col-md-6 mb-3">
-										<label htmlFor="user_id" className="form-label">User</label>
-										<select
-											id="user_id"
-											className="form-select"
-											value={form.user_id}
-											onChange={(e) => setForm((prev) => ({ ...prev, user_id: e.target.value }))}
-											required
-										>
-											{users.map((u) => (
-												<option key={u.id} value={u.id}>{u.label}</option>
-											))}
-										</select>
-									</div>
+							<div className="card card-primary">
 
-									<div className="col-md-6 mb-3">
-										<label htmlFor="cart_id" className="form-label">Cart ID</label>
-										<input
-											id="cart_id"
-											type="number"
-											className="form-control"
-											value={form.cart_id}
-											onChange={(e) => setForm((prev) => ({ ...prev, cart_id: e.target.value }))}
-											placeholder="e.g. 42"
-											required
-										/>
-									</div>
+								<div className="card-header">
+									<h3 className="card-title">Order Information</h3>
 								</div>
 
-								<div className="row">
-									<div className="col-md-6 mb-3">
-										<label htmlFor="amount" className="form-label">Amount</label>
-										<div className="input-group">
-											<span className="input-group-text">$</span>
+								<form onSubmit={onFormSubmit}>
+
+									<div className="card-body">
+
+										{/* Success message */}
+										{message && (
+											<div className="alert alert-success">
+												{message}
+											</div>
+										)}
+
+										{/* Error message */}
+										{error && (
+											<div className="alert alert-danger">
+												{error}
+											</div>
+										)}
+
+										{/* User ID */}
+										<div className="mb-3">
+											<label
+												htmlFor="user_id"
+												className="form-label"
+											>
+												User ID
+											</label>
+
 											<input
-												id="amount"
+												type="number"
+												className="form-control"
+												id="user_id"
+												name="user_id"
+												value={formData.user_id}
+												onChange={handleChange}
+												placeholder="Enter user ID"
+												required
+											/>
+										</div>
+
+										{/* Cart ID */}
+										<div className="mb-3">
+											<label
+												htmlFor="cart_id"
+												className="form-label"
+											>
+												Cart ID
+											</label>
+
+											<input
+												type="number"
+												className="form-control"
+												id="cart_id"
+												name="cart_id"
+												value={formData.cart_id}
+												onChange={handleChange}
+												placeholder="Enter cart ID"
+												required
+											/>
+										</div>
+
+										{/* Amount */}
+										<div className="mb-3">
+											<label
+												htmlFor="amount"
+												className="form-label"
+											>
+												Amount
+											</label>
+
+											<input
 												type="number"
 												step="0.01"
 												min="0"
 												className="form-control"
-												value={form.amount}
-												onChange={(e) => setForm((prev) => ({ ...prev, amount: e.target.value }))}
-												placeholder="0.00"
+												id="amount"
+												name="amount"
+												value={formData.amount}
+												onChange={handleChange}
+												placeholder="Enter amount"
 												required
 											/>
 										</div>
+
+										{/* Order Status */}
+										<div className="mb-3">
+											<label
+												htmlFor="order_status"
+												className="form-label"
+											>
+												Order Status
+											</label>
+
+											<select
+												className="form-select"
+												id="order_status"
+												name="order_status"
+												value={formData.order_status}
+												onChange={handleChange}
+											>
+												<option value="pending">
+													Pending
+												</option>
+
+												<option value="processing">
+													Processing
+												</option>
+
+												<option value="shipped">
+													Shipped
+												</option>
+
+												<option value="delivered">
+													Delivered
+												</option>
+
+												<option value="cancelled">
+													Cancelled
+												</option>
+											</select>
+										</div>
+
+										{/* Remarks */}
+										<div className="mb-3">
+											<label
+												htmlFor="remarks"
+												className="form-label"
+											>
+												Remarks
+											</label>
+
+											<textarea
+												className="form-control"
+												id="remarks"
+												name="remarks"
+												value={formData.remarks}
+												onChange={handleChange}
+												placeholder="Enter remarks"
+												rows={3}
+											></textarea>
+										</div>
+
+										{/* Cancel Reason */}
+										<div className="mb-3">
+											<label
+												htmlFor="cancel_reason"
+												className="form-label"
+											>
+												Cancel Reason
+											</label>
+
+											<textarea
+												className="form-control"
+												id="cancel_reason"
+												name="cancel_reason"
+												value={formData.cancel_reason}
+												onChange={handleChange}
+												placeholder="Enter cancellation reason"
+												rows={3}
+											></textarea>
+										</div>
+
 									</div>
 
-									<div className="col-md-6 mb-3">
-										<label htmlFor="order_status" className="form-label">Status</label>
-										<select
-											id="order_status"
-											className="form-select"
-											value={form.order_status}
-											onChange={(e) =>
-												setForm((prev) => ({ ...prev, order_status: e.target.value as OrderStatus }))
-											}
+									<div className="card-footer">
+										<button
+											type="submit"
+											className="btn btn-primary"
 										>
-											{ORDER_STATUSES.map((status) => (
-												<option key={status} value={status}>{status}</option>
-											))}
-										</select>
+											Add Order
+										</button>
 									</div>
-								</div>
 
-								<div className="mb-3">
-									<label htmlFor="remarks" className="form-label">Remarks</label>
-									<textarea
-										id="remarks"
-										className="form-control"
-										rows={3}
-										value={form.remarks}
-										onChange={(e) => setForm((prev) => ({ ...prev, remarks: e.target.value }))}
-										placeholder="Optional internal note"
-									/>
-								</div>
+								</form>
+							</div>
 
-								{form.order_status === "cancelled" && (
-									<div className="mb-3">
-										<label htmlFor="cancel_reason" className="form-label">Cancel Reason</label>
-										<input
-											id="cancel_reason"
-											type="text"
-											className="form-control"
-											value={form.cancel_reason}
-											onChange={(e) => setForm((prev) => ({ ...prev, cancel_reason: e.target.value }))}
-											placeholder="Why was this order cancelled?"
-											required
-										/>
-									</div>
-								)}
-							</div>
-							<div className="card-footer d-flex gap-2">
-								<button type="submit" className="btn btn-primary" disabled={submitting}>
-									{submitting ? "Saving…" : "Save Order"}
-								</button>
-								<a href="/orders/list" className="btn btn-outline-secondary">Cancel</a>
-							</div>
-						</form>
+						</div>
 					</div>
 				</div>
 			</div>
 		</>
-	)
-}
+	);
+};
 
 export default AddOrder;
+

@@ -30,3 +30,14 @@ export type Product = {
 	created_at: string;
 	updated_at: string;
 };
+
+export interface ProductReview {
+	id: number;
+	user_id: number;
+	product_id: number;
+	product_variant_id: number | null;
+	review_title: string;
+	description: string | null;
+	created_at: string | null;
+	updated_at: string | null;
+}

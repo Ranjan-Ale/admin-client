@@ -3,213 +3,247 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 interface ProductImage {
-    id: string;
-    product_id: string;
-    variant_id: string | null;
-    filename: string;
-    size: string;
-    upload_path: string;
+	id: string;
+	product_id: string;
+	variant_id: string | null;
+	filename: string;
+	size: string;
+	upload_path: string;
 }
 
 function ListProductImages() {
-    const [productImages, setProductImages] = useState<ProductImage[]>([]);
+	const [productImages, setProductImages] = useState<ProductImage[]>([]);
 
-    useEffect(() => {
-        const fetchProductImages = async () => {
-            try {
-                const response = await axios.get(
-                    "http://localhost:3000/product-images"
-                );
+	useEffect(() => {
+		const fetchProductImages = async () => {
+			try {
+				const response = await axios.get(
+					"http://localhost:3000/product-images"
+				);
 
-                setProductImages(response.data.images);
-            } catch (error) {
-                console.error("Error fetching product images:", error);
-            }
-        };
+				setProductImages(response.data.images);
+			} catch (error) {
+				console.error("Error fetching product images:", error);
+			}
+		};
 
-        fetchProductImages();
-    }, []);
+		fetchProductImages();
+	}, []);
 
-    return (
-        <>
-            <div className="app-content-header">
-                <div className="container-fluid">
-                    <div className="row">
-                        <div className="col-sm-6">
-                            <h1 className="mb-0 fs-3">Product Images Tables</h1>
-                        </div>
+	const handleDelete = async (id: string) => {
+		const confirmDelete = window.confirm(
+			"Are you sure you want to delete this image?"
+		);
 
-                        <div className="col-sm-6">
-                            <nav aria-label="breadcrumb">
-                                <ol className="breadcrumb float-sm-end">
-                                    <li className="breadcrumb-item">
-                                        <a href="#">Home</a>
-                                    </li>
-                                    <li className="breadcrumb-item">
-                                        <a href="#">Tables</a>
-                                    </li>
-                                    <li className="breadcrumb-item active">
-                                        Data
-                                    </li>
-                                </ol>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-            </div>
+		if (!confirmDelete) {
+			return;
+		}
 
-            <div className="app-content">
-                <div className="container-fluid">
-                    <div className="card">
+		try {
+			await axios.delete(
+				`http://localhost:3000/product-images/${id}`
+			);
 
-                        <div className="card-header">
-                            <h3 className="card-title">Product Images</h3>
+			setProductImages((currentImages) =>
+				currentImages.filter((image) => image.id !== id)
+			);
 
-                            <div className="card-tools">
-                                <div
-                                    className="input-group input-group-sm"
-                                    style={{ width: "16rem" }}
-                                >
-                                    <span className="input-group-text">
-                                        <i
-                                            className="bi bi-search"
-                                            aria-hidden="true"
-                                        ></i>
-                                    </span>
+			alert("Product image deleted successfully");
+		} catch (error) {
+			console.error("Error deleting product image:", error);
+			alert("Failed to delete product image");
+		}
+	};
 
-                                    <input
-                                        id="table-filter"
-                                        type="search"
-                                        className="form-control"
-                                        placeholder="Filter rows…"
-                                        aria-label="Filter rows"
-                                    />
-                                </div>
-                            </div>
-                        </div>
+	return (
+		<>
+			<div className="app-content-header">
+				<div className="container-fluid">
+					<div className="row">
+						<div className="col-sm-6">
+							<h1 className="mb-0 fs-3">Product Images Tables</h1>
+						</div>
 
-                        <div className="card-body">
+						<div className="col-sm-6">
+							<nav aria-label="breadcrumb">
+								<ol className="breadcrumb float-sm-end">
+									<li className="breadcrumb-item">
+										<a href="#">Home</a>
+									</li>
 
-                            <div className="d-flex gap-2 mb-3">
-                                <a
-                                    className="btn btn-sm btn-outline-secondary"
-                                    href="/product-images/add"
-                                >
-                                    <i
-                                        className="bi bi-plus-circle me-1"
-                                        aria-hidden="true"
-                                    ></i>
-                                    Add Product Images
-                                </a>
-                            </div>
+									<li className="breadcrumb-item">
+										<a href="#">Tables</a>
+									</li>
 
-                            <div
-                                className="tabulator-tableholder"
-                                tabIndex={0}
-                                style={{ height: "490px" }}
-                            >
-                                <table className="table table-striped table-hover">
+									<li className="breadcrumb-item active">
+										Data
+									</li>
+								</ol>
+							</nav>
+						</div>
+					</div>
+				</div>
+			</div>
 
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Product ID</th>
-                                            <th>Image</th>
-                                            <th>Filename</th>
-                                            <th>Size</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
+			<div className="app-content">
+				<div className="container-fluid">
+					<div className="card">
 
-                                    <tbody>
+						<div className="card-header">
+							<h3 className="card-title">Product Images</h3>
 
-                                        {productImages.map((image) => (
-                                            <tr key={image.id}>
+							<div className="card-tools">
+								<div
+									className="input-group input-group-sm"
+									style={{ width: "16rem" }}
+								>
+									<span className="input-group-text">
+										<i
+											className="bi bi-search"
+											aria-hidden="true"
+										></i>
+									</span>
 
-                                                <td>{image.id}</td>
+									<input
+										id="table-filter"
+										type="search"
+										className="form-control"
+										placeholder="Filter rows…"
+										aria-label="Filter rows"
+									/>
+								</div>
+							</div>
+						</div>
 
-                                                <td>{image.product_id}</td>
+						<div className="card-body">
 
-                                                <td>
-                                                    <img
-                                                         src={`http://localhost:3000/${
-                                                            image.upload_path.startsWith("/")
-                                                                ? image.upload_path.slice(1)
-                                                                : image.upload_path
-                                                        }`}
-                                                        alt={image.filename}
-                                                        style={{
-                                                            width: "80px",
-                                                            height: "60px",
-                                                            objectFit: "cover"
-                                                        }}
-                                                    />
-        
-                                                </td>
+							<div className="d-flex gap-2 mb-3">
+								<a
+									className="btn btn-sm btn-outline-secondary"
+									href="/product-images/add"
+								>
+									<i
+										className="bi bi-plus-circle me-1"
+										aria-hidden="true"
+									></i>
+									Add Product Images
+								</a>
+							</div>
 
-                                                <td>
-                                                    {image.filename}
-                                                </td>
+							<div
+								className="tabulator-tableholder"
+								tabIndex={0}
+								style={{ height: "490px" }}
+							>
+								<table className="table table-striped table-hover">
 
-                                                <td>
-                                                    {image.size} bytes
-                                                </td>
+									<thead>
+										<tr>
+											<th>ID</th>
+											<th>Product ID</th>
+											<th>Image</th>
+											<th>Filename</th>
+											<th>Size</th>
+											<th>Action</th>
+										</tr>
+									</thead>
 
-                                                <td>
-                                                    <div className="dropdown">
+									<tbody>
+										{productImages.map((image) => (
+											<tr key={image.id}>
 
-                                                        <button
-                                                            className="btn btn-primary btn-sm"
-                                                            data-bs-toggle="dropdown"
-                                                        >
-                                                            Action
-                                                        </button>
+												<td>{image.id}</td>
 
-                                                        <ul className="dropdown-menu">
+												<td>{image.product_id}</td>
 
-                                                            <li className="dropdown-item">
-                                                                <a href="#">
-                                                                    Edit
-                                                                </a>
-                                                            </li>
+												<td>
+													<img
+														src={`http://localhost:3000/${
+															image.upload_path.startsWith("/")
+																? image.upload_path.slice(1)
+																: image.upload_path
+														}`}
+														alt={image.filename}
+														style={{
+															width: "80px",
+															height: "60px",
+															objectFit: "cover",
+														}}
+													/>
+												</td>
 
-                                                            <li className="dropdown-item">
-                                                                <a href="#">
-                                                                    Delete
-                                                                </a>
-                                                            </li>
+												<td>
+													{image.filename}
+												</td>
 
-                                                        </ul>
+												<td>
+													{image.size} bytes
+												</td>
 
-                                                    </div>
-                                                </td>
+												<td>
+													<div className="dropdown">
 
-                                            </tr>
-                                        ))}
+														<button
+															className="btn btn-primary btn-sm"
+															data-bs-toggle="dropdown"
+														>
+															Action
+														</button>
 
-                                    </tbody>
+														<ul className="dropdown-menu">
 
-                                </table>
-                            </div>
-                        </div>
+															<li>
+																<a
+																	className="dropdown-item"
+																	href="#"
+																>
+																	Edit
+																</a>
+															</li>
 
-                        <div className="card-footer text-secondary small">
-                            Powered by{" "}
-                            <a
-                                href="https://tabulator.info/"
-                                target="_blank"
-                                rel="noopener"
-                            >
-                                Tabulator
-                            </a>
-                            &mdash; vanilla JS, no jQuery required.
-                        </div>
+															<li>
+																<button
+																	className="dropdown-item"
+																	type="button"
+																	onClick={() =>
+																		handleDelete(image.id)
+																	}
+																>
+																	Delete
+																</button>
+															</li>
 
-                    </div>
-                </div>
-            </div>
-        </>
-    );
+														</ul>
+
+													</div>
+												</td>
+
+											</tr>
+										))}
+									</tbody>
+
+								</table>
+							</div>
+						</div>
+
+						<div className="card-footer text-secondary small">
+							Powered by{" "}
+							<a
+								href="https://tabulator.info/"
+								target="_blank"
+								rel="noopener"
+							>
+								Tabulator
+							</a>
+							&mdash; vanilla JS, no jQuery required.
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</>
+	);
 }
 
 export default ListProductImages;
+
