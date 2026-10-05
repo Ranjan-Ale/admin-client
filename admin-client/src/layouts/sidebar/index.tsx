@@ -144,11 +144,35 @@ const Sidebar = () => {
 							</li>
 
 							<li className="nav-item">
+								<a href="#" className="nav-link">
+									<i className="nav-icon bi bi-people"></i>
+									<p>
+										Product Images
+										<i className="nav-arrow bi bi-chevron-right"></i>
+									</p>
+								</a>
+								<ul className="nav nav-treeview">
+									<li className="nav-item">
+										<a href="/product-images" className="nav-link">
+											<i className="nav-icon bi bi-circle"></i>
+											<p>List Product Images</p>
+										</a>
+									</li>
+									<li className="nav-item">
+										<a href="/product-images/add" className="nav-link">
+											<i className="nav-icon bi bi-circle"></i>
+											<p>Add Product Images</p>
+										</a>
+									</li>
+								</ul>
+							</li>
+
+							{/* <li className="nav-item">
 								<a href="/product-images" className="nav-link">
 									<i className="nav-icon bi bi-people"></i>
 									<p>Product Images</p>
 								</a>
-							</li>
+							</li> */}
 
 							<li className="nav-item">
 								<a href="/users" className="nav-link">
