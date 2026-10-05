@@ -4,6 +4,12 @@ export type CategoryForm = {
 	description: string;
 };
 
+export type ProductForm = {
+	name: string;
+	slug: string;
+	description?: string;
+	category: number;
+}
 // app models
 
 export type Category = {
@@ -15,7 +21,7 @@ export type Category = {
 	updated_at?: string;
 };
 
-export type product = {
+export type Product = {
 	id: number;
 	name: string;
 	slug: string;

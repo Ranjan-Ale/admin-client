@@ -1,29 +1,61 @@
 import { useEffect, useState } from "react";
-import axios from "axios"
+import type { Product } from "../../types/app.types";
+import { deleteProduct, getProduct } from "../../services/products.servcies";
+// import axios from "axios"
 
-interface Product {
-    id: number;
-    name: string;
-    slug: string;
-    category: string;
-    description: string;
-    created_at: string;
-    updated_at: string;
-}
+// interface Product {
+//     id: number;
+//     name: string;
+//     slug: string;
+//     category: string;
+//     description: string;
+//     created_at: string;
+//     updated_at: string;
+// }
 
-function ListProducts() {
-	const [products, setProducts] = useState<Product[]>([]);
+// function ListProducts() {
+// 	const [products, setProducts] = useState<Product[]>([]);
 
-	useEffect(() => {
-		axios.get("http://localhost:3000/products")
-		.then((response)=>{
-			console.log(response.data);
-			setProducts(response.data);
-		})
-		.catch((error)=>{
-			console.error("error fetching products:", error);
-		});
-	}, []);
+// 	useEffect(() => {
+// 		axios.get("http://localhost:3000/products")
+// 		.then((response)=>{
+// 			console.log(response.data);
+// 			setProducts(response.data);
+// 		})
+// 		.catch((error)=>{
+// 			console.error("error fetching products:", error);
+// 		});
+// 	}, []);
+
+function ListProducts(){
+	const [products, setProducts] = useState<Product[]>([])
+
+	const loadProducts = () => {
+		getProduct()
+			.then((_prods: Product[])=>{
+				setProducts(_prods);
+			})
+			.catch(()=>{
+				console.log("get products failed.")
+			});
+	}
+	const onClickDelete = (id: number, idx: number) => {
+			deleteProduct(id)
+				.then(() => {
+					// delete success
+					setProducts([
+						...products.slice(0, idx),
+						...products.slice(idx + 1)
+					])
+				})
+				.catch(err => {
+					console.log(err);
+				})
+		}
+	
+		useEffect(function () {
+			loadProducts();
+		}, []);
 
 	return (
 		<>
@@ -94,7 +126,7 @@ function ListProducts() {
 									</thead>
 									<tbody>
 										
-										{products.map((product) => (
+										{ products.length > 0? products.map((product: Product, idx: number) => (
 											<tr key={product.id}>
 												<td>{product.id}</td>
 												<td>{product.name}</td>
@@ -126,7 +158,10 @@ function ListProducts() {
 																	className="dropdown-item"
 																	type="button"
 																>
-																	Delete
+																	<a href="#" onClick={(e)=>{
+																		e.preventDefault();
+																		onClickDelete(product.id, idx);
+																	}}>Delete</a>
 																</button>
 															</li>
 
@@ -142,7 +177,8 @@ function ListProducts() {
 													</div>
 												</td>
 											</tr>
-										))}
+										)): null
+									}
 									</tbody>
 								</table>
 							</div>
