@@ -110,7 +110,7 @@ function ListCategories() {
 															<button className="btn btn-primary btm-sm" data-bs-toggle="dropdown">Action</button>
 															<ul className="dropdown-menu">
 																<li className="dropdown-item">
-																	<a href="#">Edit</a>
+																	<a href={`/categories/${category.id}`}>Edit</a>
 																</li>
 																<li className="dropdown-item">
 																	<a href="#" onClick={(e) => {

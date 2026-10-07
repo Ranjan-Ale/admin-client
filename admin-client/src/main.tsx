@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router'
 import Home from './pages/home/index.tsx'
 import ListCategories from './pages/categories/index.tsx'
 import AddCategory from './pages/categories/add-category.tsx'
+import EditCategory from './pages/categories/edit-category.tsx'
 import AdminLayout from './layouts/index.tsx'
 
 import ListProducts from './pages/products/index.tsx'
@@ -28,6 +29,7 @@ const router = createBrowserRouter([
       { path: '/categories', Component: ListCategories },
       { path: '/categories/list', Component: ListCategories },
       { path: '/categories/add', Component: AddCategory },
+      { path: '/categories/:id', Component: EditCategory },
       { path: '/products', Component: ListProducts },
       { path: '/products/list', Component: ListProducts },
       { path: '/products/add', Component: AddProduct},

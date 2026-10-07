@@ -144,14 +144,9 @@ function ListProducts(){
 														</button>
 
 														<ul className="dropdown-menu">
-															<li>
-																<a
-																	className="dropdown-item"
-																	href={`/products/edit/${product.id}`}
-																>
-																	Edit
-																</a>
-															</li>
+															<li className="dropdown-item">
+																	<a href={`/categories/${product.id}`}>Edit</a>
+																</li>
 
 															<li>
 																<button
