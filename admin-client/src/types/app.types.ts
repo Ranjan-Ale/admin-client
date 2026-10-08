@@ -4,12 +4,7 @@ export type CategoryForm = {
 	description: string;
 };
 
-export type ProductForm = {
-	name: string;
-	slug: string;
-	description?: string;
-	category: number;
-}
+
 // app models
 
 export type Category = {
@@ -30,6 +25,13 @@ export type Product = {
 	created_at: string;
 	updated_at: string;
 };
+
+export type  ProductForm = {
+	name: string;
+	slug: string;
+	description: string;
+	category_id: string;
+}
 
 export interface ProductReview {
 	id: number;

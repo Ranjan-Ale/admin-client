@@ -1,31 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Product } from "../../types/app.types";
-import { deleteProduct, getProduct } from "../../services/products.servcies";
-// import axios from "axios"
-
-// interface Product {
-//     id: number;
-//     name: string;
-//     slug: string;
-//     category: string;
-//     description: string;
-//     created_at: string;
-//     updated_at: string;
-// }
-
-// function ListProducts() {
-// 	const [products, setProducts] = useState<Product[]>([]);
-
-// 	useEffect(() => {
-// 		axios.get("http://localhost:3000/products")
-// 		.then((response)=>{
-// 			console.log(response.data);
-// 			setProducts(response.data);
-// 		})
-// 		.catch((error)=>{
-// 			console.error("error fetching products:", error);
-// 		});
-// 	}, []);
+import { deleteProduct, getProduct } from "../../services/products.services";
 
 function ListProducts(){
 	const [products, setProducts] = useState<Product[]>([])
@@ -145,7 +120,7 @@ function ListProducts(){
 
 														<ul className="dropdown-menu">
 															<li className="dropdown-item">
-																	<a href={`/categories/${product.id}`}>Edit</a>
+																	<a href={`/products/${product.id}`}>Edit</a>
 																</li>
 
 															<li>

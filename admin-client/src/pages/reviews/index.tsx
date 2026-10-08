@@ -218,7 +218,7 @@ function ListReviews() {
 																<ul className="dropdown-menu">
 
 																	<li className="dropdown-item">
-																		<a href="#">
+																		<a href={`/products-reviews/${review.id}`}>
 																			Edit
 																		</a>
 																	</li>

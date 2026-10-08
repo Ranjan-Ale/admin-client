@@ -13,3 +13,4 @@ export const getReviews = (): Promise<ProductReview[]> => {
 export const deleteReview = (id: number) => {
 	return axios.delete(`${api.product_reviews}/${id}`);
 };
+

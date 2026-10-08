@@ -233,7 +233,7 @@ function ListOrders() {
 															<li>
 																<a
 																	className="dropdown-item"
-																	href={`/orders/edit/${order.id}`}
+																	href={`/orders/${order.id}`}
 																>
 																	Edit
 																</a>
