@@ -24,7 +24,8 @@ import AddOrder from './pages/orders/add-order.tsx'
 import EditOrder from './pages/orders/edit-order.tsx'
 
 import ListProductImages from './pages/product_images/index.tsx'
-import UploadImage from './pages/product_images/UploadImage.tsx'
+import AddProductImage from './pages/product_images/UploadImage.tsx'
+import EditProductImage from './pages/product_images/edit-images.tsx'
 
 import ListUsers from './pages/users/index.tsx'
 
@@ -57,7 +58,8 @@ const router = createBrowserRouter([
       { path: '/orders/:id', Component: EditOrder},
       { path: '/product-images', Component: ListProductImages},
       { path: '/product-images/list', Component: ListProductImages},
-      { path: '/product-images/add', Component: UploadImage},
+      { path: '/product-images/add', Component: AddProductImage},
+      { path: '/product-images/:id', Component: EditProductImage},
       { path: '/users', Component: ListUsers},
       { path: '/users/list', Component: ListUsers},
     ]

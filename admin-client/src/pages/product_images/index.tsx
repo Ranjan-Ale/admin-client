@@ -3,39 +3,46 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 interface ProductImage {
-	id: string;
-	product_id: string;
-	variant_id: string | null;
+	id: number;
+	product_id: number;
+	variant_id: number | null;
 	filename: string;
 	size: string;
 	upload_path: string;
 }
 
-function ListProductImages() {
-	const [productImages, setProductImages] = useState<ProductImage[]>([]);
+const ListProductImages = () => {
+	const [images, setImages] = useState<ProductImage[]>([]);
+	const [loading, setLoading] = useState(true);
+
+	const loadImages = async () => {
+		try {
+			setLoading(true);
+
+			const response = await axios.get(
+				"http://localhost:3000/product-images"
+			);
+
+			const data = response.data.images ?? response.data;
+
+			setImages(data);
+		} catch (error) {
+			console.error("Failed to load product images:", error);
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	useEffect(() => {
-		const fetchProductImages = async () => {
-			try {
-				const response = await axios.get(
-					"http://localhost:3000/product-images"
-				);
-
-				setProductImages(response.data.images);
-			} catch (error) {
-				console.error("Error fetching product images:", error);
-			}
-		};
-
-		fetchProductImages();
+		loadImages();
 	}, []);
 
-	const handleDelete = async (id: string) => {
-		const confirmDelete = window.confirm(
-			"Are you sure you want to delete this image?"
+	const handleDelete = async (id: number) => {
+		const confirmed = window.confirm(
+			"Are you sure you want to delete this product image?"
 		);
 
-		if (!confirmDelete) {
+		if (!confirmed) {
 			return;
 		}
 
@@ -44,206 +51,224 @@ function ListProductImages() {
 				`http://localhost:3000/product-images/${id}`
 			);
 
-			setProductImages((currentImages) =>
-				currentImages.filter((image) => image.id !== id)
+			setImages((prevImages) =>
+				prevImages.filter((image) => image.id !== id)
 			);
 
-			alert("Product image deleted successfully");
+			alert("Product image deleted successfully.");
 		} catch (error) {
-			console.error("Error deleting product image:", error);
-			alert("Failed to delete product image");
+			console.error("Failed to delete product image:", error);
+			alert("Failed to delete product image.");
 		}
 	};
 
-	return (
-		<>
-			<div className="app-content-header">
-				<div className="container-fluid">
-					<div className="row">
-						<div className="col-sm-6">
-							<h1 className="mb-0 fs-3">Product Images Tables</h1>
-						</div>
+	const formatSize = (size: string) => {
+		const bytes = Number(size);
 
-						<div className="col-sm-6">
-							<nav aria-label="breadcrumb">
+		if (isNaN(bytes)) {
+			return size;
+		}
+
+		if (bytes < 1024) {
+			return `${bytes} B`;
+		}
+
+		if (bytes < 1024 * 1024) {
+			return `${(bytes / 1024).toFixed(2)} KB`;
+		}
+
+		return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+	};
+
+	return (
+		<div className="app-content">
+			<div className="container-fluid">
+
+				{/* Page Header */}
+				<div className="app-content-header">
+					<div className="container-fluid">
+						<div className="row">
+							<div className="col-sm-6">
+								<h3 className="mb-0">
+									Product Images
+								</h3>
+							</div>
+
+							<div className="col-sm-6">
 								<ol className="breadcrumb float-sm-end">
 									<li className="breadcrumb-item">
-										<a href="#">Home</a>
+										Home
 									</li>
-
-									<li className="breadcrumb-item">
-										<a href="#">Tables</a>
-									</li>
-
 									<li className="breadcrumb-item active">
-										Data
+										Product Images
 									</li>
 								</ol>
-							</nav>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
 
-			<div className="app-content">
+				{/* Table */}
 				<div className="container-fluid">
-					<div className="card">
+					<div className="row">
+						<div className="col-12">
 
-						<div className="card-header">
-							<h3 className="card-title">Product Images</h3>
+							<div className="card">
 
-							<div className="card-tools">
-								<div
-									className="input-group input-group-sm"
-									style={{ width: "16rem" }}
-								>
-									<span className="input-group-text">
-										<i
-											className="bi bi-search"
-											aria-hidden="true"
-										></i>
-									</span>
+								<div className="card-header">
+									<div className="card-title">
+										All Product Images
+									</div>
 
-									<input
-										id="table-filter"
-										type="search"
-										className="form-control"
-										placeholder="Filter rows…"
-										aria-label="Filter rows"
-									/>
+									<a
+										href="/product-images/add"
+										className="btn btn-primary float-end"
+									>
+										<i className="bi bi-plus-lg me-1"></i>
+										Add Product Image
+									</a>
 								</div>
-							</div>
-						</div>
 
-						<div className="card-body">
+								<div className="card-body p-0">
 
-							<div className="d-flex gap-2 mb-3">
-								<a
-									className="btn btn-sm btn-outline-secondary"
-									href="/product-images/add"
-								>
-									<i
-										className="bi bi-plus-circle me-1"
-										aria-hidden="true"
-									></i>
-									Add Product Images
-								</a>
-							</div>
+									{loading ? (
+										<div className="text-center p-4">
+											Loading product images...
+										</div>
+									) : images.length === 0 ? (
+										<div className="text-center p-4">
+											No product images found.
+										</div>
+									) : (
+										<div className="table-responsive">
 
-							<div
-								className="tabulator-tableholder"
-								tabIndex={0}
-								style={{ height: "490px" }}
-							>
-								<table className="table table-striped table-hover">
+											<table className="table table-bordered table-hover mb-0">
 
-									<thead>
-										<tr>
-											<th>ID</th>
-											<th>Product ID</th>
-											<th>Image</th>
-											<th>Filename</th>
-											<th>Size</th>
-											<th>Action</th>
-										</tr>
-									</thead>
+												<thead>
+													<tr>
+														<th>#</th>
+														<th>Image</th>
+														<th>Product ID</th>
+														<th>Variant ID</th>
+														<th>Filename</th>
+														<th>Size</th>
+														<th>Actions</th>
+													</tr>
+												</thead>
 
-									<tbody>
-										{productImages.map((image) => (
-											<tr key={image.id}>
+												<tbody>
+													{images.map(
+														(image, index) => (
+															<tr key={image.id}>
 
-												<td>{image.id}</td>
+																<td>
+																	{index + 1}
+																</td>
 
-												<td>{image.product_id}</td>
+																<td>
+																	<img
+																		src={`http://localhost:3000/${image.upload_path.replace(
+																			/\\/g,
+																			"/"
+																		)}`}
+																		alt={
+																			image.filename
+																		}
+																		style={{
+																			width: "80px",
+																			height: "80px",
+																			objectFit:
+																				"cover",
+																			borderRadius:
+																				"6px",
+																		}}
+																		onError={(
+																			e
+																		) => {
+																			e.currentTarget.src =
+																				"/images/no-image.png";
+																		}}
+																	/>
+																</td>
 
-												<td>
-													<img
-														src={`http://localhost:3000/${
-															image.upload_path.startsWith("/")
-																? image.upload_path.slice(1)
-																: image.upload_path
-														}`}
-														alt={image.filename}
-														style={{
-															width: "80px",
-															height: "60px",
-															objectFit: "cover",
-														}}
-													/>
-												</td>
-
-												<td>
-													{image.filename}
-												</td>
-
-												<td>
-													{image.size} bytes
-												</td>
-
-												<td>
-													<div className="dropdown">
-
-														<button
-															className="btn btn-primary btn-sm"
-															data-bs-toggle="dropdown"
-														>
-															Action
-														</button>
-
-														<ul className="dropdown-menu">
-
-															<li>
-																<a
-																	className="dropdown-item"
-																	href="#"
-																>
-																	Edit
-																</a>
-															</li>
-
-															<li>
-																<button
-																	className="dropdown-item"
-																	type="button"
-																	onClick={() =>
-																		handleDelete(image.id)
+																<td>
+																	{
+																		image.product_id
 																	}
-																>
-																	Delete
-																</button>
-															</li>
+																</td>
 
-														</ul>
+																<td>
+																	{image.variant_id ??
+																		"—"}
+																</td>
 
-													</div>
-												</td>
+																<td>
+																	{
+																		image.filename
+																	}
+																</td>
 
-											</tr>
-										))}
-									</tbody>
+																<td>
+																	{formatSize(
+																		image.size
+																	)}
+																</td>
 
-								</table>
+																<td>
+																	<div className="d-flex gap-2">
+
+																		<a
+																			href={`/product-images/${image.id}`}
+																			className="btn btn-sm btn-warning"
+																		>
+																			<i className="bi bi-pencil"></i>
+																		</a>
+
+																		<button
+																			type="button"
+																			className="btn btn-sm btn-danger"
+																			onClick={() =>
+																				handleDelete(
+																					image.id
+																				)
+																			}
+																		>
+																			<i className="bi bi-trash"></i>
+																		</button>
+
+																	</div>
+																</td>
+
+															</tr>
+														)
+													)}
+												</tbody>
+
+											</table>
+
+										</div>
+									)}
+
+								</div>
+
+								{!loading && images.length > 0 && (
+									<div className="card-footer">
+										Showing{" "}
+										<strong>{images.length}</strong>{" "}
+										product images
+									</div>
+								)}
+
 							</div>
-						</div>
 
-						<div className="card-footer text-secondary small">
-							Powered by{" "}
-							<a
-								href="https://tabulator.info/"
-								target="_blank"
-								rel="noopener"
-							>
-								Tabulator
-							</a>
-							&mdash; vanilla JS, no jQuery required.
 						</div>
-
 					</div>
 				</div>
+
 			</div>
-		</>
+		</div>
 	);
-}
+};
 
 export default ListProductImages;
 

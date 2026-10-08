@@ -229,12 +229,12 @@ function ListUsers() {
 														<ul className="dropdown-menu">
 
 															<li>
-																<a
+																{/* <a
 																	className="dropdown-item"
 																	href={`/users/edit/${user.id}`}
 																>
 																	Edit
-																</a>
+																</a> */}
 															</li>
 
 															<li>
