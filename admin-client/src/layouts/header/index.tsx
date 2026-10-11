@@ -1,4 +1,16 @@
+import { useNavigate } from "react-router";
+import { removeToken } from "../../services/auth.service";
+
+
+
 const Header = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () =>{
+    removeToken();
+    navigate("/auth/login");
+  }
+
 	return (
 		<>
 		<nav className="app-header navbar navbar-expand bg-body">
@@ -11,7 +23,7 @@ const Header = () => {
             role="search"
             action="./pages/search-results.html"
           >
-            <label for="navbar-search-input" className="visually-hidden">Search</label>
+            <label htmlFor="navbar-search-input" className="visually-hidden">Search</label>
             <div className="navbar-search-field">
               <input
                 type="search"
@@ -19,7 +31,7 @@ const Header = () => {
                 name="q"
                 className="form-control"
                 placeholder="Search…"
-                autocomplete="off"
+                autoComplete="off"
               />
               <button className="navbar-search-submit" type="submit" aria-label="Submit search">
                 <i className="bi bi-search" aria-hidden="true"></i>
@@ -69,7 +81,7 @@ const Header = () => {
               <ul
                 className="dropdown-menu dropdown-menu-end"
                 aria-labelledby="bd-theme"
-                style={{"--bs-dropdown-min-width": "8rem"}}
+                // style={{"--bs-dropdown-min-width": "8rem"}}
               >
                 <li>
                   <button
@@ -115,7 +127,7 @@ const Header = () => {
             <li className="nav-item dropdown user-menu">
               <a href="#" className="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                 <img
-                  src="../../assets/img/hero.png"
+                  src="../../assets/img/avatar.png"
                   className="user-image rounded-circle shadow"
                   alt="Alexander Pierce"
                 />
@@ -123,7 +135,8 @@ const Header = () => {
               </a>
               <ul className="dropdown-menu dropdown-menu-lg dropdown-menu-end">
                 {/* <!--begin::User Image--> */}
-                <li className="user-header text-bg-primary">
+
+                {/* <li className="user-header text-bg-primary">
                   <img
                     src="./assets/img/user2-160x160.jpg"
                     className="rounded-circle shadow"
@@ -133,12 +146,14 @@ const Header = () => {
                     Alexander Pierce - Web Developer
                     <small>Member since Nov. 2023</small>
                   </p>
-                </li>
+                </li> */}
+
                 {/* <!--end::User Image--> */}
                 {/* <!--begin::Menu Body--> */}
                 <li className="user-body">
                   {/* <!--begin::Row--> */}
-                  <div className="row">
+
+                  {/* <div className="row">
                     <div className="col-4 text-center">
                       <a href="#">Followers</a>
                     </div>
@@ -148,14 +163,15 @@ const Header = () => {
                     <div className="col-4 text-center">
                       <a href="#">Friends</a>
                     </div>
-                  </div>
+                  </div> */}
+
                   {/* <!--end::Row--> */}
                 </li>
                 {/* <!--end::Menu Body--> */}
                 {/* <!--begin::Menu Footer--> */}
                 <li className="user-footer">
                   <a href="#" className="btn btn-outline-secondary">Profile</a>
-                  <a href="#" className="btn btn-outline-danger float-end">Sign out</a>
+                  <button type="button" className="btn btn-outline-danger float-end" onClick={handleLogout}>Log out</button>
                 </li>
                 {/* <!--end::Menu Footer--> */}
               </ul>
