@@ -251,14 +251,14 @@ function ListOrders() {
 																</button>
 															</li>
 
-															<li>
+															{/* <li>
 																<a
 																	className="dropdown-item"
 																	href={`/orders/${order.id}`}
 																>
 																	View Order
 																</a>
-															</li>
+															</li> */}
 
 														</ul>
 

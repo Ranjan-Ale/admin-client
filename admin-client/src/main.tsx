@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import { createBrowserRouter, RouterProvider } from 'react-router'
+import { createBrowserRouter, redirect, RouterProvider } from 'react-router'
 import AdminLayout from './layouts/index.tsx'
 
 import Home from './pages/home/index.tsx'
@@ -28,7 +28,8 @@ import AddProductImage from './pages/product_images/UploadImage.tsx'
 import EditProductImage from './pages/product_images/edit-images.tsx'
 
 import ListUsers from './pages/users/index.tsx'
-
+import Login from './pages/auth/login.tsx'
+import {getToken} from './services/auth.service.ts'
 
 
 
@@ -36,7 +37,21 @@ import ListUsers from './pages/users/index.tsx'
 
 const router = createBrowserRouter([
   {
+    path: '/auth/login',
+    loader: () => {
+      if (getToken()){
+        return redirect("/");
+      }
+    },
+    Component: Login,
+  },
+  {
     path: '/',
+    loader: () => {
+      if (!getToken()){
+        return redirect('auth/login');
+      }
+    },
     Component: AdminLayout,
     children: [
       { index: true, Component: Home },
